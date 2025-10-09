@@ -27,8 +27,8 @@ async def clean_csv(file: UploadFile = File(...)):
     for col in df.select_dtypes(include=['object']).columns:
         df[col] = df[col].astype(str).str.strip()
 
+    # Allowing csv download
     stream = io.StringIO()
-
     df.to_csv(stream, index=False)
     stream.seek(0)
     
