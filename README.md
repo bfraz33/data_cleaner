@@ -4,8 +4,11 @@ Users can upload messy Csv's and then download the cleaned up version.
 
 # Features
 -Remove duplicate rows
+
 -Drop rows with missing values
+
 -Standardize column names:
+
 -Lowercase
 -Replace spaces with underscores
 -Strip leading/trailing whitespace
