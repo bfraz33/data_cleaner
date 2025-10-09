@@ -1,6 +1,8 @@
 from fastapi import File, FastAPI, UploadFile
+from fastapi.responses import StreamingResponse
 import pandas as pd
-from io import StringIO
+from io import StringIO 
+import io
 
 app = FastAPI(title="A Data Cleaner API")
 
@@ -14,9 +16,6 @@ async def clean_csv(file: UploadFile = File(...)):
     contents = await file.read()
     df = pd.read_csv(StringIO(contents.decode("utf-8")))
 
-    # Save original count
-    rows_before = len(df)
-
     # Clean column names
     df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
 
@@ -28,12 +27,15 @@ async def clean_csv(file: UploadFile = File(...)):
     for col in df.select_dtypes(include=['object']).columns:
         df[col] = df[col].astype(str).str.strip()
 
-    # Prepare cleaned summary
-    result = {
-        "rows_before": rows_before,
-        "rows_after": len(df),
-        "columns": list(df.columns),
-        "preview": df.head(5).to_dict(orient="records")
-    }
+    stream = io.StringIO()
 
-    return result
+    df.to_csv(stream, index=False)
+    stream.seek(0)
+    
+
+    filename = f"Cleaned_{file.filename}"
+    return StreamingResponse(
+        stream, 
+        media_type="text/csv", 
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
