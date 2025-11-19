@@ -21,7 +21,7 @@ async def clean_csv(file: UploadFile = File(...)):
 
     # Drop duplicates and missing rows
     df.drop_duplicates(inplace=True)
-    df.dropna(inplace=True)
+    df.dropna("NA",inplace=True)
 
     # Strip whitespace from string columns
     for col in df.select_dtypes(include=['object']).columns:
