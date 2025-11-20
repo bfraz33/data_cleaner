@@ -14,14 +14,15 @@ def home():
 async def clean_csv(file: UploadFile = File(...)):
     # Read uploaded file
     contents = await file.read()
-    df = pd.read_csv(StringIO(contents.decode("utf-8")))
+    df = pd.read_csv(
+    StringIO(contents.decode("utf-8")),
+    keep_default_na=False,
+    na_filter=False         # 👈 REQUIRED to stop pandas from treating "NA" as NaN
+)
 
     # Clean column names
     df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
-
-    # Drop duplicates and missing rows
-    df.drop_duplicates(inplace=True)
-    df.dropna("NA",inplace=True)
+    
 
     # Strip whitespace from string columns
     for col in df.select_dtypes(include=['object']).columns:
